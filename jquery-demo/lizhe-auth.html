@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="../lib/es6-promise.min.js"></script>
+    <script src="../lib/aliyun-oss-sdk6.10.0.min.js"></script>
+    <script src="../aliyun-vod-upload-sdk1.5.2.min.js"></script>
+
+    <script type="text/javascript">
+        //兼容IE11
+        if (!FileReader.prototype.readAsBinaryString) {
+            FileReader.prototype.readAsBinaryString = function (fileData) {
+                var binary = "";
+                var pt = this;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var bytes = new Uint8Array(reader.result);
+                    var length = bytes.byteLength;
+                    for (var i = 0; i < length; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    //pt.result  - readonly so assign binary
+                    pt.content = binary;
+                    pt.onload()
+                }
+                reader.readAsArrayBuffer(fileData);
+            }
+        }
+
+        $(document).ready(function () {
+
+
+            var uploader = new AliyunUpload.Vod({
+                //阿里账号ID，必须有值
+                userId: "122",
+                //分片大小默认1 MB，不能小于100 KB
+                partSize: 1048576,
+                //并行上传分片个数，默认5
+                parallel: 5,
+                //网络原因失败时，重新上传次数，默认为3
+                retryCount: 3,
+                //网络原因失败时，重新上传间隔时间，默认为2秒
+                retryDuration: 2,
+                //是否上报上传日志到视频点播，默认为true
+                enableUploadProgress: true,
+                //开始上传
+                'onUploadstarted': function (uploadInfo) {
+                    log("onUploadStarted:" + uploadInfo.file.name + ", endpoint:" + uploadInfo.endpoint + ", bucket:" + uploadInfo.bucket + ", object:" + uploadInfo.object);
+                    //上传方式1，需要根据uploadInfo.videoId是否有值，调用视频点播的不同接口获取uploadauth和uploadAddress，如果videoId有值，调用刷新视频上传凭证接口，否则调用创建视频上传凭证接口
+                    
+                }
+            });
+        })
+
+        
+    </script>
+</head>
